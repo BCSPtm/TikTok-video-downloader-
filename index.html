@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Link Fetcher</title>
+</head>
+<body>
+    <h1>Fetch Download Link</h1>
+    <form id="linkForm">
+        <label for="linkInput">Enter Your Link:</label>
+        <input type="text" id="linkInput" name="link" required>
+        <button type="submit">Submit</button>
+    </form>
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('linkForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const link = document.getElementById('linkInput').value;
+            fetch('https://savetik.co/api/ajaxSearch', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'User-Agent': navigator.userAgent,
+                    'sec-ch-ua': `"Google Chrome";v="113", "Chromium";v="113", "Not-A.Brand";v="24"`,
+                    'dnt': '1',
+                    'sec-ch-ua-mobile': '?1',
+                    'x-requested-with': 'XMLHttpRequest',
+                    'sec-ch-ua-platform': '"Android"',
+                    'origin': 'https://savetik.co',
+                    'sec-fetch-site': 'same-origin',
+                    'sec-fetch-mode': 'cors',
+                    'sec-fetch-dest': 'empty',
+                    'referer': 'https://savetik.co/en2',
+                    'accept-language': 'ar,en-US;q=0.9,en;q=0.8'
+                },
+                body: new URLSearchParams({ q: link, lang: 'en' })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(data.data, 'text/html');
+                const links = doc.querySelectorAll('a.tik-button-dl');
+                if (links.length >= 2) {
+                    document.getElementById('result').innerHTML = 'Download Link: <a href="' + links[1].href + '">' + links[1].href + '</a>';
+                } else {
+                    document.getElementById('result').innerHTML = 'Error: No valid download link found.';
+                }
+            })
+            .catch(error => {
+                document.getElementById('result').innerHTML = 'Error fetching data: ' + error.message;
+            });
+        });
+    </script>
+</body>
+  </html>
+  
